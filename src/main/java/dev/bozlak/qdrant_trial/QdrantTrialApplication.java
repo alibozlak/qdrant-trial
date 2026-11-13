@@ -1,12 +1,25 @@
 package dev.bozlak.qdrant_trial;
 
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import dev.bozlak.rag.retrieval.TokenService;
+import dev.bozlak.rag.retrieval.backends.EmbeddingVectorService;
+
+import io.qdrant.client.PointIdFactory;
 import io.qdrant.client.QdrantClient;
 import io.qdrant.client.QdrantGrpcClient;
+import io.qdrant.client.ValueFactory;
+import io.qdrant.client.VectorsFactory;
 import io.qdrant.client.grpc.Collections.Distance;
 import io.qdrant.client.grpc.Collections.VectorParams;
+import io.qdrant.client.grpc.Points.PointStruct;
+import io.qdrant.client.grpc.Points.UpdateResult;
 
 @SpringBootApplication
 public class QdrantTrialApplication {
@@ -20,12 +33,44 @@ public class QdrantTrialApplication {
             QdrantGrpcClient.newBuilder("localhost", 6334, false).build()
         );
 
-        String collectionName = "Manifest_Members";
+        // String collectionName = "Manifest_Members";
+        String collectionName = "Articles";
 		// checkCollectionExist(collectionName, qdrantClient);
 
-		qdrantClient.grpcClient().collections();
-        
+		ApplicationContext context = new AnnotationConfigApplicationContext("dev.bozlak.qdrant_trial");
+		TokenService tokenService = context.getBean(TokenService.class);
+		EmbeddingVectorService embeddingVectorService = context.getBean(EmbeddingVectorService.class);
+
+		// String data = "Lidya";
+		// String key = "lead_vocal";
+		String article = null;
+		String key = null;
+		
+		addPointToQdrant(tokenService, article, embeddingVectorService, key, qdrantClient, collectionName);
+
         qdrantClient.close();
+	}
+
+	static void addPointToQdrant(
+		TokenService tokenService, 
+		String realData, 
+		EmbeddingVectorService embeddingVectorService, 
+		String key, 
+		QdrantClient qdrantClient, 
+		String collectionName
+	) throws Exception {
+		tokenService.validateTokenCount(realData);
+
+		float[] vectorOfData = embeddingVectorService.getGeneratedEmbeddingVector(realData);
+
+		PointStruct pointStruct = PointStruct.newBuilder()
+			.setId(PointIdFactory.id(UUID.randomUUID()))
+			.setVectors(VectorsFactory.vectors(vectorOfData))
+			.putPayload(key, ValueFactory.value(realData))
+			.build();
+
+		UpdateResult result = qdrantClient.upsertAsync(collectionName, List.of(pointStruct)).get();
+		System.out.println("Adding result : " + result.getStatus().toString());
 	}
 
 	static void checkCollectionExist(String collectionName, QdrantClient qdrantClient) throws Exception {
