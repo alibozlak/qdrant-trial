@@ -35,3 +35,6 @@ build/
 ### tokenizer.json ###
 models/embedding/tokenizer.json
 
+### Results JSONs ###
+qdrant_results/
+

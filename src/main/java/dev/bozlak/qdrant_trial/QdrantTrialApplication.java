@@ -29,26 +29,39 @@ public class QdrantTrialApplication {
 
 
 		// ********************** Trials *******************************
+		// trials(QdrantTrialApplication::addPointsTrials);
+
+		// Dot product vector similarity codes here : 		
+	}
+
+	static void trials(QdrantAndEmbeddingModelTrial qdrantAndEmbeddingModelTrialFunc) throws Exception {
 		QdrantClient qdrantClient = new QdrantClient(
             QdrantGrpcClient.newBuilder("localhost", 6334, false).build()
         );
-
-        // String collectionName = "Manifest_Members";
-        String collectionName = "Articles";
-		// checkCollectionExist(collectionName, qdrantClient);
 
 		ApplicationContext context = new AnnotationConfigApplicationContext("dev.bozlak.qdrant_trial");
 		TokenService tokenService = context.getBean(TokenService.class);
 		EmbeddingVectorService embeddingVectorService = context.getBean(EmbeddingVectorService.class);
 
-		// String data = "Lidya";
-		// String key = "lead_vocal";
-		String article = null;
-		String key = null;
+		// addPointsTrials(qdrantClient, tokenService, embeddingVectorService);
+		qdrantAndEmbeddingModelTrialFunc.doSomething(qdrantClient, tokenService, embeddingVectorService);
+
+		qdrantClient.close();
+	}
+
+	static void addPointsTrials(
+		QdrantClient qdrantClient, TokenService tokenService, EmbeddingVectorService embeddingVectorService
+	) throws Exception {
+        String collectionName = "Articles";
+		// checkCollectionExist(collectionName, qdrantClient);
+
+		String article = "Jensen Huang her ne kadar zamanında AI'da yavaşlama olmamalı gibi bir kendi şirketine dayalı saçma " + 
+		"sapan bir açıklama yapmış olsa da, elindeki VRAM'leri ondan almaya çalışıyorlar. Keywords : " + 
+		"Pentagon, Sam Altman, AI Training, Trump, Politics, Politika. " + 
+		"Effective çözüm bulamayanların liderlik için alavere dalavereleri.. Siyaset, politika";
+		String key = "func_trial_politic";
 		
 		addPointToQdrant(tokenService, article, embeddingVectorService, key, qdrantClient, collectionName);
-
-        qdrantClient.close();
 	}
 
 	static void addPointToQdrant(
