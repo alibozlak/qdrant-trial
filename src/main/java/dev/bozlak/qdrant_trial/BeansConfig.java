@@ -42,4 +42,9 @@ public class BeansConfig {
     public EmbeddingVectorService embeddingVectorService() {
         return new OllamaEmbeddingVectorServiceImpl(this.httpClient(), this.gson());
     }
+
+    @Bean 
+    public JsonFileResolver jsonFileResolver() {
+        return new JsonFileResolverImpl(this.gson());
+    }
 }
