@@ -1,7 +1,5 @@
 package dev.bozlak.qdrant_trial;
 
-import dev.bozlak.rag.retrieval.TokenService;
-import dev.bozlak.rag.retrieval.backends.EmbeddingVectorService;
 import io.qdrant.client.QdrantClient;
 
 @FunctionalInterface 
@@ -14,8 +12,6 @@ public interface QdrantAndEmbeddingModelTrial {
      * @param embeddingVectorService
      * @throws Exception
      */
-    void doSomething(
-        QdrantClient qdrantClient, TokenService tokenService, EmbeddingVectorService embeddingVectorService
-    ) throws Exception;
+    void doSomething(QdrantClient qdrantClient) throws Exception;
 
 }

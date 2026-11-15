@@ -5,6 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import dev.bozlak.rag.retrieval.TokenService;
+import dev.bozlak.rag.retrieval.backends.EmbeddingVectorService;
+
 
 @SpringBootApplication
 public class QdrantTrialApplication {
@@ -14,9 +17,14 @@ public class QdrantTrialApplication {
 
 
 		ConsumerWithException<ApplicationContext> operations = context -> {
-			StepZeroTrials stepZeroTrials = new StepZeroTrials();
+			TokenService tokenService = context.getBean(TokenService.class);
+			EmbeddingVectorService embeddingVectorService = context.getBean(EmbeddingVectorService.class);
+
+			StepZeroTrials stepZeroTrials = new StepZeroTrials(tokenService, embeddingVectorService);
 			// stepZeroTrials.trials(context, stepZeroTrials::addPointsTrials);
 			// stepZeroTrials.dotProductSimilarityTest(context);   // <---- Results are better than my predicts :)
+			
+			// stepZeroTrials.qdrantDotProductSimilarityTest();	   // <---- Good news :)
 		};
 		wrapOperations(operations);
 	}
